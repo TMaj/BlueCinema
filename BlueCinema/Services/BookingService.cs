@@ -24,7 +24,19 @@ namespace BlueCinema.Services
 
         public void Add(Guid seanceId, string places)
         {
-            var intPlaces = ConversionHelper.ParseDelimitedStringToInts(":",places); 
+            var intPlaces = ConversionHelper.ParseDelimitedStringToInts(':', places);
+            var seance = this.context.Seances.FirstOrDefault(s => s.Id.Equals(seanceId));
+
+            if (seance == null)
+            {
+                throw new Exception("Invalid seance id");
+            }
+
+            if (!IsBookingValid(seance, intPlaces))
+            {
+                throw new Exception("Invalid booking data. Perhaps places are already booked, or places numbers exceeds seats count.");
+            };
+
 
         }
 
@@ -48,6 +60,22 @@ namespace BlueCinema.Services
             var oldBooking = context.Bookings.FirstOrDefault(b => b.Id == booking.Id);
             oldBooking = booking;
             context.SaveChanges();
+        }
+
+        private bool IsBookingValid(Seance seance, IList<int> places)
+        {
+            if (places.Any(p => p < 0 || p > seance.Room.SeatsCount))
+            {
+                return false;
+            }
+
+            if (places.Any(p => seance.BookedPlaces.Contains(p)))
+            {
+                return false;
+            }
+
+            return true;
+
         }
     }
 }

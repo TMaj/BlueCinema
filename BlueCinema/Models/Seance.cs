@@ -19,7 +19,7 @@ namespace BlueCinema.Models
             Film = film;
         }
 
-        public IList<int> BookedPlaces => ConversionHelper.ParseDelimitedStringsToInts(":", Bookings.Select(b => b.Places).ToList());             
+        public IList<int> BookedPlaces => ConversionHelper.ParseDelimitedStringsToInts(':', Bookings.Select(b => b.Places).ToList());
 
         public Guid Id { get; set; }
         public DateTime Time { get; set; }
@@ -27,5 +27,5 @@ namespace BlueCinema.Models
         public Film Film { get; set; }
         public List<Booking> Bookings { get; set; }
     }
-    
+
 }
