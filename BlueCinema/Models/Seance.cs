@@ -9,10 +9,10 @@ namespace BlueCinema.Models
     {
         public Seance()
         {
-
+            this.Bookings = new List<Booking>();
         }
 
-        public Seance(DateTime time, Room room, Film film)
+        public Seance(DateTime time, Room room, Film film) : this()
         {
             Time = time;
             Room = room;
