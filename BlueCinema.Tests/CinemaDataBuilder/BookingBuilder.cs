@@ -9,8 +9,8 @@ namespace BlueCinema.Tests.CinemaDataBuilder
 
         public BookingBuilder(Seance seance)
         {
-            this.booking.Seance = seance;
             this.booking = new Booking();
+            this.booking.Seance = seance;
         }
 
         public BookingBuilder WithGuid(Guid guid)

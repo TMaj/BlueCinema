@@ -1,4 +1,5 @@
 ﻿using BlueCinema.Data;
+using BlueCinema.Exceptions;
 using BlueCinema.Helpers;
 using BlueCinema.Models;
 using BlueCinema.Services.Interfaces;
@@ -19,25 +20,9 @@ namespace BlueCinema.Services
 
         public void Add(Booking booking)
         {
+            ValidateBooking(booking);
+
             context.Bookings.Add(booking);
-        }
-
-        public void Add(Guid seanceId, string places)
-        {
-            var intPlaces = ConversionHelper.ParseDelimitedStringToInts(':', places);
-            var seance = this.context.Seances.FirstOrDefault(s => s.Id.Equals(seanceId));
-
-            if (seance == null)
-            {
-                throw new Exception("Invalid seance id");
-            }
-
-            if (!IsBookingValid(seance, intPlaces))
-            {
-                throw new Exception("Invalid booking data. Perhaps places are already booked, or places numbers exceeds seats count.");
-            };
-
-
         }
 
         public IList<Booking> GetAll()
@@ -62,7 +47,29 @@ namespace BlueCinema.Services
             context.SaveChanges();
         }
 
-        private bool IsBookingValid(Seance seance, IList<int> places)
+        private void ValidateBooking(Booking booking)
+        {
+            var intPlaces = ConversionHelper.ParseDelimitedStringToInts(':', booking.Places);
+
+            if (booking.Seance == null)
+            {
+                throw new BookingException("Booking has no seance reference");
+            }
+
+            var seance = this.context.Seances.ToList().FirstOrDefault(s => s.Id.Equals(booking.Seance.Id));
+
+            if (seance == null)
+            {
+                throw new BookingException("Invalid seance id");
+            }
+
+            if (!AreBookingPlacesValid(seance, intPlaces))
+            {
+                throw new BookingException("Invalid booking data. Perhaps places are already booked, or places numbers exceeds seats count.");
+            }
+        }
+
+        private bool AreBookingPlacesValid(Seance seance, IList<int> places)
         {
             if (places.Any(p => p < 0 || p > seance.Room.SeatsCount))
             {
@@ -75,7 +82,6 @@ namespace BlueCinema.Services
             }
 
             return true;
-
         }
     }
 }
