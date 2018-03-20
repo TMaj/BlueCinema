@@ -4,6 +4,56 @@ import {Panel, Modal, Button} from 'react-bootstrap'
 
 export default class RegisterModal extends React.Component{
 
+    constructor(props, context) {
+        super(props, context);
+    
+        this.state = {
+          pswd1: '',
+          pswd2: '',
+          pswdError: false,
+          pswdErrorText: ''
+        };
+        
+
+      }
+
+    updatePswd1Value(evt){
+        this.setState({
+            pswd1: evt
+          }, () => { this.checkForDifference() });
+        
+    }
+
+    updatePswd2Value(evt){
+        this.setState({
+            pswd2: evt
+          }, () => { this.checkForDifference() } );
+        
+    }
+
+    checkForDifference(){
+
+        this.setState({
+            pswdError : false
+        });
+
+        if(this.state.pswd1!='' && this.state.pswd2!='' && !(this.state.pswd1 === this.state.pswd2)){
+            this.setState({
+                pswdError : true,
+                pswdErrorText : 'Passwords dont match '
+            });
+        }
+        else if(this.state.pswd1.length<6){
+            this.setState({
+                pswdError : true,
+                pswdErrorText : 'Password needs at least 6 signs'
+            });
+        }
+        else{
+            
+        }
+    }
+
     render(){
         return(
         <Modal show={this.props.show} onHide={this.props.handleClose}>
@@ -27,7 +77,9 @@ export default class RegisterModal extends React.Component{
                         label="Enter your password"
                         type="password"
                         required
+                       
                         className="md-cell md-cell--bottom"
+                        onChange ={(evt)=>this.updatePswd1Value(evt)}
                      />
 
                      <TextField
@@ -35,7 +87,10 @@ export default class RegisterModal extends React.Component{
                         label="Confirm your password"
                         type="password"
                         required
+                        error={this.state.pswdError}
+                        errorText={this.state.pswdErrorText}
                         className="md-cell md-cell--bottom"
+                        onChange ={(evt)=>this.updatePswd2Value(evt)}
                      />
 
                    
