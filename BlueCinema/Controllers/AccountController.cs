@@ -1,126 +1,163 @@
-﻿using BlueCinema.Models.Security;
-using BlueCinema.Models.ViewModels;
+﻿using BlueCinema.Models.ViewModels;
+using BlueCinema.Security;
 using BlueCinema.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BlueCinema.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Account")]
     public class AccountController : Controller
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IMessageService _messageService;
 
-        public AccountController(
-            UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager,
-            IEmailSender emailSender,
-            ILogger<AccountController> logger)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IMessageService messageService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
-            _logger = logger;
+            this._userManager = userManager;
+            this._signInManager = signInManager;
+            this._messageService = messageService;
+        }
+
+        public IActionResult Register()
+        {
+            return Ok("Empty register");
+        }
+
+        [HttpGet("{id}")]
+        [Route("api/account/get")]
+        public IActionResult GetAll(int id)
+        {
+            return Ok("Empty register" + id);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [Route("api/account/admin")]
+        public IActionResult RequiresAdmin()
+        {
+            return Ok("OK");
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        [Route("api/account/register")]
+        public async Task<IActionResult> Register([FromBody]RegisterViewModel registerViewModel)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+            if (registerViewModel.Password != registerViewModel.RePassword)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email,
-                    model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation(1, "User logged in.");
-                    return Ok();
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning(2, "User account locked out.");
-                    return View("Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+                return BadRequest("Password don't match");
             }
 
-            // If we got this far, something failed, redisplay form
-            return BadRequest("Something failed during logging in");
+            var newUser = new IdentityUser
+            {
+                UserName = registerViewModel.Email,
+                Email = registerViewModel.Email
+            };
+            try
+            {
+                var userCreationResult = await _userManager.CreateAsync(newUser, registerViewModel.Password);
+                if (!userCreationResult.Succeeded)
+                {
+                    return BadRequest(userCreationResult.Errors.Select(e => e.Description));
+                }
+                await _userManager.AddClaimAsync(newUser, new Claim(ClaimTypes.Role, "User"));
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
+
+            //var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            //var tokenVerificationUrl = Url.Action("VerifyEmail", "Account", new { id = newUser.Id, token = emailConfirmationToken }, Request.Scheme);
+
+            //await _messageService.Send(registerViewModel.Email, "Verify your email", $"Click <a href=\"{tokenVerificationUrl}\">here</a> to verify your email");
+
+            //return Ok("Check your email for a verification link");
+            return Ok("Ok, account created");
+
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        [Route("api/account/login")]
+        public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
-            {
-                var user = new AppUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation("User created a new account with password.");
-
-                }
-                return BadRequest("Something failed during registering");
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return BadRequest();
-            }
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
             if (user == null)
             {
-                throw new Exception($"Unable to load user with ID '{userId}'.");
+                return BadRequest("Invalid login");
             }
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+            //if (!user.EmailConfirmed)
+            //{
+            //    return BadRequest("Confirm your email first");
+            //}
+
+            var passwordSignInResult = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, isPersistent: loginViewModel.RememberMe, lockoutOnFailure: false);
+            if (!passwordSignInResult.Succeeded)
+            {
+                return BadRequest("Invalid login");
+            }
+
+            var claims = await _userManager.GetClaimsAsync(user);
+
+            return Ok(JWTTokenCreator.GetToken(loginViewModel, claims));
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ResetPassword(string code = null)
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([FromBody]string email)
         {
-            if (code == null)
-            {
-                throw new ApplicationException("A code must be supplied for password reset.");
-            }
-            var model = new ResetPasswordViewModel { Code = code };
-            return View(model);
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return Ok("Check your email for a password reset link");
+
+            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var passwordResetUrl = Url.Action("ResetPassword", "Account", new { id = user.Id, token = passwordResetToken }, Request.Scheme);
+
+            await _messageService.Send(email, "Password reset", $"Click <a href=\"" + passwordResetUrl + "\">here</a> to reset your password");
+
+            return Ok("Check your email for a password reset link");
         }
+
+        public async Task<IActionResult> VerifyEmail(string id, string token)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                throw new InvalidOperationException();
+
+            var emailConfirmationResult = await _userManager.ConfirmEmailAsync(user, token);
+            if (!emailConfirmationResult.Succeeded)
+                return Content(emailConfirmationResult.Errors.Select(error => error.Description).Aggregate((allErrors, error) => allErrors += ", " + error));
+
+            return Ok("Email confirmed, you can now log in");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string id, string token, string password, string repassword)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                throw new InvalidOperationException();
+
+            if (password != repassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords do not match");
+                return View();
+            }
+
+            var resetPasswordResult = await _userManager.ResetPasswordAsync(user, token, password);
+            if (!resetPasswordResult.Succeeded)
+            {
+                foreach (var error in resetPasswordResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View();
+            }
+
+            return Content("Password updated");
+        }
+
     }
 }

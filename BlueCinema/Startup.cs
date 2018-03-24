@@ -1,5 +1,4 @@
 ﻿using BlueCinema.Data;
-using BlueCinema.Models.Security;
 using BlueCinema.Services;
 using BlueCinema.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 
 namespace BlueCinema
 {
@@ -24,40 +26,42 @@ namespace BlueCinema
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentity<AppUser, AppRole>()
-                       .AddEntityFrameworkStores<BlueCinemaContext>()
-                       .AddDefaultTokenProviders();
-            services.Configure<IdentityOptions>(options =>
+            services.AddDbContext<BlueCinemaContext>(options =>
+                                  options.UseSqlite("Data Source=cinema.sqlite",
+            optionsBuilder => optionsBuilder.MigrationsAssembly("BlueCinema")));
+            services.AddIdentity<IdentityUser, IdentityRole>(config =>
+                {
+                    config.SignIn.RequireConfirmedEmail = false;
+                })
+                .AddEntityFrameworkStores<BlueCinemaContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options =>
             {
-                // Password settings
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = false;
-                options.Password.RequiredUniqueChars = 6;
+                options.DefaultAuthenticateScheme = "JwtBearer";
+                options.DefaultChallengeScheme = "JwtBearer";
+            })
+            .AddJwtBearer("JwtBearer", jwtBearerOptions =>
+            {
+                jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopqwertyuiop")),
 
-                // Lockout settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                options.Lockout.MaxFailedAccessAttempts = 10;
-                options.Lockout.AllowedForNewUsers = true;
+                    ValidateIssuer = true,
+                    ValidIssuer = "BlueCinema",
 
-                // User settings
-                options.User.RequireUniqueEmail = true;
+                    ValidateAudience = true,
+                    ValidAudience = "BlueCinemaClient",
+
+                    ValidateLifetime = true, //validate the expiration and not before values in the token
+
+                    ClockSkew = TimeSpan.FromMinutes(5) //5 minute tolerance for the expiration date
+                };
             });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                options.LoginPath = "/Account/Login"; // If the LoginPath is not set here, ASP.NET Core will default to /Account/Login
-                options.LogoutPath = "/Account/Logout"; // If the LogoutPath is not set here, ASP.NET Core will default to /Account/Logout
-                options.AccessDeniedPath = "/Account/AccessDenied"; // If the AccessDeniedPath is not set here, ASP.NET Core will default to /Account/AccessDenied
-                options.SlidingExpiration = true;
-            });
+            services.AddTransient<IMessageService, FileMessageService>();
 
-            services.AddDbContext<BlueCinemaContext>(opt => opt.UseInMemoryDatabase("BlueCinema"));
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IFilmService, FilmService>();
             services.AddScoped<ISeanceService, SeanceService>();
@@ -65,13 +69,20 @@ namespace BlueCinema
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, BlueCinemaContext dbContext)
         {
+
+            app.UseAuthentication();
+            loggerFactory.AddConsole();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                dbContext.Database.Migrate();
             }
 
+
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }

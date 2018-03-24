@@ -1,6 +1,7 @@
 ﻿using BlueCinema.Helpers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace BlueCinema.Models
@@ -19,6 +20,7 @@ namespace BlueCinema.Models
             Film = film;
         }
 
+        [NotMapped]
         public IList<int> BookedPlaces => ConversionHelper.ParseDelimitedStringsToInts(':', Bookings.Select(b => b.Places).ToList());
 
         public Guid Id { get; set; }
