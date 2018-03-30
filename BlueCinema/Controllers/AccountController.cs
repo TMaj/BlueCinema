@@ -104,7 +104,7 @@ namespace BlueCinema.Controllers
 
             var claims = await _userManager.GetClaimsAsync(user);
 
-            return Ok(JWTTokenCreator.GetToken(loginViewModel, claims));
+            return Ok(new { token = JWTTokenCreator.GetToken(loginViewModel, claims), claims = claims });
         }
 
         [HttpPost]

@@ -1,6 +1,6 @@
 import React from 'react'
 import {TextField} from 'react-md'
-import {Panel, Modal, Button} from 'react-bootstrap'
+import {Panel, Modal, Button, Label} from 'react-bootstrap'
 
 export default class RegisterModal extends React.Component{
 
@@ -8,6 +8,7 @@ export default class RegisterModal extends React.Component{
         super(props, context);
     
         this.state = {
+          email: '',
           pswd1: '',
           pswd2: '',
           pswdError: false,
@@ -16,6 +17,17 @@ export default class RegisterModal extends React.Component{
         
 
       }
+
+    onRegisterClicked(){
+        this.props.handleRegister(this.state.email, this.state.pswd1, this.state.pswd2);
+    }
+
+    updateEmailValue(evt){
+        this.setState({
+            email: evt
+          });
+        
+    }
 
     updatePswd1Value(evt){
         this.setState({
@@ -70,6 +82,7 @@ export default class RegisterModal extends React.Component{
                         placeholder="youremail@email.com"
                         className="md-cell md-cell--bottom"
                         errorText = "Invalid email"
+                        onChange ={(evt)=>this.updateEmailValue(evt)}
                     />
                    
                     <TextField
@@ -93,10 +106,10 @@ export default class RegisterModal extends React.Component{
                         onChange ={(evt)=>this.updatePswd2Value(evt)}
                      />
 
-                   
+            <Label bsStyle="warning"> {this.props.errorMessage}</Label>
             </Modal.Body>
             <Modal.Footer>
-                <Button flat primary swapTheming onClick={this.handleShow} >Register</Button>
+                <Button onClick={this.onRegisterClicked.bind(this)} >Register</Button>
             </Modal.Footer>
         </Modal>);
     }

@@ -60,6 +60,8 @@ namespace BlueCinema
                 };
             });
 
+            services.AddCors();
+
             services.AddTransient<IMessageService, FileMessageService>();
 
             services.AddScoped<IBookingService, BookingService>();
@@ -81,6 +83,11 @@ namespace BlueCinema
                 dbContext.Database.Migrate();
             }
 
+            app.UseCors(builder =>
+                        builder.AllowAnyOrigin()
+                               .AllowAnyHeader()
+                               .AllowAnyMethod()
+                        );
 
             app.UseStaticFiles();
             app.UseMvc();
