@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import {Panel, Nav, NavItem} from 'react-bootstrap'
 import ApiService from '../services/ApiService'
 import FilmsList from './FilmsList'
+import {Link} from 'react-router-dom'
 
  export default class TopPanel extends React.Component{
       
@@ -38,16 +39,16 @@ import FilmsList from './FilmsList'
       }
 
       render(){
-          return(            
-                <Nav bsStyle="pills" activeKey={this.state.activeKey} onSelect={this.handleSelect} >
+          return(           
+                <Nav bsStyle="tabs" activeKey={this.state.activeKey} onSelect={this.handleSelect} >
                     <NavItem eventKey={1}>
-                        Films
+                        <Link to="/films"> Films </Link> 
                     </NavItem>
                     <NavItem eventKey={2}>
-                        Seances
+                        <Link to="/seances"> Seances </Link> 
                     </NavItem>
                     <NavItem eventKey={3}>
-                        Information
+                        <Link to="/information"> Information </Link> 
                     </NavItem>
                 </Nav>
             )

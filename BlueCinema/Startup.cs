@@ -27,7 +27,7 @@ namespace BlueCinema
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<BlueCinemaContext>(options =>
-                                  options.UseSqlite("Data Source=cinema.sqlite",
+                                  options.UseSqlite("Data Source=cinema.sqlite; BinaryGUID=false;",
             optionsBuilder => optionsBuilder.MigrationsAssembly("BlueCinema")));
             services.AddIdentity<IdentityUser, IdentityRole>(config =>
                 {

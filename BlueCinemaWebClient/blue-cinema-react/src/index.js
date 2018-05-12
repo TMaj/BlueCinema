@@ -7,6 +7,8 @@ import ApiService from './services/ApiService'
 import FilmsList from './components/FilmsList'
 import MainPanel from './components/MainPanel'
 import TopPanel from './components/TopPanel'
+import {BrowserRouter} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 
  class MainApp extends React.Component{
 
@@ -29,7 +31,7 @@ import TopPanel from './components/TopPanel'
             <div>        
                 <Grid className="grid-example">
                     <Cell>
-                        <Img src="img/BlueCinemaLogo.png" width="80%" height="100%"/>
+                        <Link to='/'><Img src="img/BlueCinemaLogo.png" width="80%" height="100%"/></Link>
                     </Cell>
                     <Cell></Cell>
                     <Cell>
@@ -44,6 +46,8 @@ import TopPanel from './components/TopPanel'
   }
 
 ReactDOM.render(
-  <MainApp/>,
+  <BrowserRouter>  
+  <MainApp/>
+  </BrowserRouter>,
   document.getElementById('app')
 );

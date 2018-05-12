@@ -11,9 +11,10 @@ using System;
 namespace BlueCinema.Migrations
 {
     [DbContext(typeof(BlueCinemaContext))]
-    partial class BlueCinemaContextModelSnapshot : ModelSnapshot
+    [Migration("20180415184600_Urls")]
+    partial class Urls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

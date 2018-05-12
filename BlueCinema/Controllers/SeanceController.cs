@@ -30,6 +30,12 @@ namespace BlueCinema.Controllers
             return seanceService.GetById(id);
         }
 
+        [HttpGet("time")]
+        public IList<(Guid filmUid, IList<DateTime> dates)> GetSeancesWithTimes([FromQuery(Name = "seanceDate")]DateTime seanceDate, [FromQuery(Name = "filmId")] Guid filmId)
+        {
+            return seanceService.GetSeancesWithTimes(seanceDate);
+        }
+
         // POST api/seances
         [HttpPost]
         public void Post([FromBody]Seance seance)

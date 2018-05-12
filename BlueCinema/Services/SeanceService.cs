@@ -35,6 +35,22 @@ namespace BlueCinema.Services
             return context.Seances.FirstOrDefault(s => s.Id == id);
         }
 
+        public IList<(Guid filmId, IList<DateTime> time)> GetSeancesWithTimes(DateTime seanceDate)
+        {
+            var seances = GetAll().Where(s => s.Time.Day.Equals(seanceDate.Day) && s.Time.Month.Equals(seanceDate.Month));
+            var films = seances.Select(s => s.Film).Distinct().ToList();
+            var returnList = new List<(Guid, IList<DateTime>)>();
+            films.ForEach(f => returnList.Add((filmId: f.Id, time: seances.Where(s => s.Film.Id.Equals(f.Id)).Select(s => s.Time).ToList())));
+            return returnList;
+        }
+
+        public IList<DateTime> GetSeanceTimes(DateTime seanceDate, Guid filmId)
+        {
+            return GetAll().Where(s => s.Film.Id.Equals(filmId) && s.Time.Day.Equals(seanceDate.Day) && s.Time.Month.Equals(seanceDate.Month))
+                          .Select(s => s.Time)
+                          .ToList();
+        }
+
         public void Remove(Guid id)
         {
             throw new NotImplementedException();

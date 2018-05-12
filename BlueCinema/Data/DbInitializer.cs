@@ -11,14 +11,14 @@ namespace BlueCinema.Data
         {
             context.Database.EnsureCreated();
 
-            var film1 = new Film("Quo Vadis", 90, "A movie about ancient Rome");
-            var film2 = new Film("Spiderman", 120, "Adventures of a famous hero");
-            var film3 = new Film("Silence of the Lambs", 110, "Horrifying story about serial killer");
-            var film4 = new Film("Avatar", 80, "Futuristic tales about blue civilization");
-            var film5 = new Film("Private Rayan", 150, "Touching history of a lost soldier");
-            var film6 = new Film("Troy", 90, "Famous clash between Greeks and Toyans");
-            var film7 = new Film("Wolf of Wallstreet", 100, "Leonardo Dicaprio in a terrific role");
-            var film8 = new Film("Matrix", 110, "Keanu Reaves fights armies of enemies on his own");
+            var film1 = new Film("Quo Vadis", 90, "A movie about ancient Rome", "qv.jpg");
+            var film2 = new Film("Spiderman", 120, "Adventures of a famous hero", "sd.jpg");
+            var film3 = new Film("Silence of the Lambs", 110, "Horrifying story about serial killer", "sl.jpg");
+            var film4 = new Film("Avatar", 80, "Futuristic tales about blue civilization", "av.jpg");
+            var film5 = new Film("Private Rayan", 150, "Touching history of a lost soldier", "pr.jpg");
+            var film6 = new Film("Troy", 90, "Famous clash between Greeks and Toyans", "tr.jpg");
+            var film7 = new Film("Wolf of Wallstreet", 100, "Leonardo Dicaprio in a terrific role", "ww.jpg");
+            var film8 = new Film("Matrix", 110, "Keanu Reaves fights armies of enemies on his own", "mt.jpg");
 
             var room1 = new Room(1, 60);
             var room2 = new Room(2, 50);
@@ -28,6 +28,7 @@ namespace BlueCinema.Data
             var room6 = new Room(6, 60);
 
             var seance1 = new Seance(new DateTime(2018, 3, 15, 14, 30, 0), room1, film1);
+            var seance1_5 = new Seance(new DateTime(2018, 3, 15, 18, 30, 0), room1, film1);
             var seance2 = new Seance(new DateTime(2018, 3, 15, 15, 30, 0), room2, film2);
             var seance3 = new Seance(new DateTime(2018, 3, 15, 16, 30, 0), room3, film3);
             var seance4 = new Seance(new DateTime(2018, 3, 15, 17, 30, 0), room4, film4);
@@ -75,6 +76,7 @@ namespace BlueCinema.Data
                 var seances = new List<Seance>()
                 {
                     seance1,
+                    seance1_5,
                     seance2,
                     seance3,
                     seance4,
@@ -86,7 +88,7 @@ namespace BlueCinema.Data
 
                 seances.ForEach(s => context.Seances.Add(s));
                 context.SaveChanges();
-            }            
+            }
         }
     }
 }
