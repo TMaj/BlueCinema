@@ -29,7 +29,7 @@ export default class SeanceList extends React.Component {
             var filmy = [];
             var iterator = 0;
             filmsList.forEach(element => {               
-                ApiService.get("/films/".concat(element.item1), (film)=>{ filmy.push(<ListGroupItem key={iterator++}><SeanceInfo title={film.title} seanceHours={element.item2} url={film.url} /></ListGroupItem>)})
+                ApiService.get("/films/".concat(element.item2), (film)=>{ filmy.push(<ListGroupItem key={iterator++}><SeanceInfo title={film.title} seanceId={element.item1} seanceHours={element.item3} url={film.url} /></ListGroupItem>)})
             });
             
             this.setState({films : filmy}, ()=>{console.log('Filmy w state'); console.log(filmy); console.log(this.state.films); this.forceUpdate();});        
@@ -70,8 +70,9 @@ class SeanceInfo extends React.Component {
         super(props, context);
         
         this.state = {
-            seanceHours: this.props.seanceHours
-            
+            seanceHours: this.props.seanceHours,
+            seanceId : this.props.seanceId,
+            seanceTime: null
         };
         ApiService.get("/seances/time?seanceDate=2018-03-15T16:30:00&filmId=a18e0cfe-3a2e-45d1-aec0-1415cfaf9b52")
       }
@@ -83,7 +84,8 @@ class SeanceInfo extends React.Component {
         console.log(this.state.seanceHours);
         this.state.seanceHours.forEach(hour=>{ 
             var dateTime = new Date(hour); 
-            hoursRows.push(<tr onClick={ ()=>{ console.log('Clicked'); this.setState({ reservatonModalShow : true })}} key={it++}><td>{dateTime.toLocaleTimeString()}</td></tr>)});
+            var time =dateTime.toLocaleTimeString();
+            hoursRows.push(<tr onClick={ ()=>{ console.log('Clicked'); this.setState({ reservatonModalShow : true, seanceTime: time })}} key={it++}><td>{time}</td></tr>)});
         return hoursRows;        
       }
     
@@ -119,10 +121,10 @@ class SeanceInfo extends React.Component {
                 </div>
                 </Cell>
                 <Cell>
-                {this.createHoursTable()}
+                    {this.createHoursTable()}
                 </Cell>                 
             </Grid>             
-            <ReservationModal show={this.state.reservatonModalShow} handleClose={()=>this.hideReservationModal()} />
+            <ReservationModal seanceId={this.state.seanceId} seanceTime={this.state.seanceTime} show={this.state.reservatonModalShow} handleClose={()=>this.hideReservationModal()} />
             </Panel.Body>         
         </Panel>        
         );
