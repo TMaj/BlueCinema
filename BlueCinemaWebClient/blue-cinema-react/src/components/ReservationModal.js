@@ -25,7 +25,7 @@ export default class ReservationModal extends React.Component{
         return(        
         <Modal bsSize="lg" show={this.props.show} onHide={this.props.handleClose}>      
         <Modal.Header closeButton>
-          <Modal.Title><h4>Ticket reservation and purchase</h4></Modal.Title>
+          <Modal.Title>Ticket reservation and purchase</Modal.Title>
           </Modal.Header>
           <Modal.Body ref='content'>                    
               <ReservationWizard seanceId={this.state.seanceId} seanceTime={this.state.seanceTime}/>

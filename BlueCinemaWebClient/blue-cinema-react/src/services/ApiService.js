@@ -14,8 +14,9 @@ export default class ApiService{
             email: email, password: password
         })
         .then(response => {
-            AuthService.authenticateUser(response.data.token, response.data.claims, email);            
-            console.log('User succesfully logged in');
+            AuthService.authenticateUser(response.data.token, response.data.claims, email, response.data.uid);            
+            console.log('User succesfully logged in, uid: ' + response.data.uid);
+          
             onSuccess();            
         })
         .catch(error => { onError("Bad credentials"), console.log(error.response); })
@@ -37,6 +38,14 @@ export default class ApiService{
     
     static get(url,onFinish){
         this.apiInstance.get(url)
+        .then(response => {            
+            onFinish(response.data);            
+        })
+        .catch(error => {console.log(error.response);})
+    }
+
+    static post(url,object,onFinish){
+        this.apiInstance.post(url,object)
         .then(response => {            
             onFinish(response.data);            
         })

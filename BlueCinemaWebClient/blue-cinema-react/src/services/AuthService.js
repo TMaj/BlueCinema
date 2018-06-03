@@ -1,9 +1,12 @@
 class Auth {
 
-    static authenticateUser(token,claims,email) {
+    static authenticateUser(token,claims,email, uid) {
         localStorage.setItem('email',email);
         localStorage.setItem('token', token);
         localStorage.setItem('claims',claims);
+        localStorage.setItem('uid',uid);
+
+        console.log('Uid from localstorage: ' + this.getUid());
     }
 
     static isUserAuthenticated() {
@@ -25,7 +28,11 @@ class Auth {
     }
 
     static getEmail(){
-        return localStorage.getItem('email')
+        return localStorage.getItem('email');
+    }
+
+    static getUid(){
+        return localStorage.getItem('uid');
     }
 }
 
