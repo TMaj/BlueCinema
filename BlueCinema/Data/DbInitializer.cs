@@ -20,22 +20,35 @@ namespace BlueCinema.Data
             var film7 = new Film("Wolf of Wallstreet", 100, "Leonardo Dicaprio in a terrific role", "ww.jpg");
             var film8 = new Film("Matrix", 110, "Keanu Reaves fights armies of enemies on his own", "mt.jpg");
 
-            var room1 = new Room(1, 60);
-            var room2 = new Room(2, 50);
-            var room3 = new Room(3, 70);
-            var room4 = new Room(4, 80);
-            var room5 = new Room(5, 80);
-            var room6 = new Room(6, 60);
+            var room1 = new Room(1, 160);
+            var room2 = new Room(2, 160);
+            var room3 = new Room(3, 160);
+            var room4 = new Room(4, 160);
+            var room5 = new Room(5, 160);
+            var room6 = new Room(6, 160);
 
-            var seance1 = new Seance(new DateTime(2018, 3, 15, 14, 30, 0), room1, film1);
-            var seance1_5 = new Seance(new DateTime(2018, 3, 15, 18, 30, 0), room1, film1);
-            var seance2 = new Seance(new DateTime(2018, 3, 15, 15, 30, 0), room2, film2);
-            var seance3 = new Seance(new DateTime(2018, 3, 15, 16, 30, 0), room3, film3);
-            var seance4 = new Seance(new DateTime(2018, 3, 15, 17, 30, 0), room4, film4);
-            var seance5 = new Seance(new DateTime(2018, 3, 16, 14, 30, 0), room1, film1);
-            var seance6 = new Seance(new DateTime(2018, 3, 16, 15, 30, 0), room2, film2);
-            var seance7 = new Seance(new DateTime(2018, 3, 16, 16, 30, 0), room3, film3);
-            var seance8 = new Seance(new DateTime(2018, 3, 16, 17, 30, 0), room4, film4);
+            var seance1 = new Seance(new DateTime(2018, 6, 4, 14, 30, 0), room1, film1);
+            var seance1_5 = new Seance(new DateTime(2018, 6, 4, 18, 30, 0), room1, film1);
+            var seance2 = new Seance(new DateTime(2018, 6, 4, 10, 30, 0), room2, film2);
+            var seance2_2 = new Seance(new DateTime(2018, 6, 4, 12, 30, 0), room2, film2);
+            var seance2_3 = new Seance(new DateTime(2018, 6, 4, 15, 30, 0), room2, film2);
+            var seance2_4 = new Seance(new DateTime(2018, 6, 4, 18, 30, 0), room2, film2);
+            var seance2_5 = new Seance(new DateTime(2018, 6, 4, 20, 00, 0), room2, film3);
+            var seance2_6 = new Seance(new DateTime(2018, 6, 4, 12, 00, 0), room2, film7);
+            var seance2_7 = new Seance(new DateTime(2018, 6, 4, 10, 00, 0), room3, film7);
+            var seance2_8 = new Seance(new DateTime(2018, 6, 4, 8, 00, 0), room4, film7);
+            var seance2_9 = new Seance(new DateTime(2018, 6, 4, 20, 00, 0), room1, film8);
+
+            var seance3 = new Seance(new DateTime(2018, 6, 4, 16, 30, 0), room3, film3);
+            var seance4 = new Seance(new DateTime(2018, 6, 5, 17, 30, 0), room4, film4);
+            var seance5 = new Seance(new DateTime(2018, 6, 5, 14, 30, 0), room1, film1);
+            var seance6 = new Seance(new DateTime(2018, 6, 5, 15, 30, 0), room2, film2);
+            var seance7 = new Seance(new DateTime(2018, 6, 5, 16, 30, 0), room3, film3);
+            var seance8 = new Seance(new DateTime(2018, 6, 6, 17, 30, 0), room4, film7);
+            var seance9 = new Seance(new DateTime(2018, 6, 6, 17, 30, 0), room4, film7);
+            var seance10 = new Seance(new DateTime(2018, 6, 7, 17, 30, 0), room4, film5);
+            var seance11 = new Seance(new DateTime(2018, 6, 7, 17, 30, 0), room4, film8);
+            var seance12 = new Seance(new DateTime(2018, 6, 8, 17, 30, 0), room4, film8);
 
             if (!context.Films.Any())
             {
@@ -78,12 +91,24 @@ namespace BlueCinema.Data
                     seance1,
                     seance1_5,
                     seance2,
+                    seance2_2,
+                    seance2_3,
+                    seance2_4,
+                    seance2_5,
+                    seance2_6,
+                    seance2_7,
+                    seance2_8,
+                    seance2_9,
                     seance3,
                     seance4,
                     seance5,
                     seance6,
                     seance7,
                     seance8,
+                    seance9,
+                    seance10,
+                    seance11,
+                    seance12
                 };
 
                 seances.ForEach(s => context.Seances.Add(s));

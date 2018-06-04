@@ -23,22 +23,22 @@ export default class SeanceList extends React.Component {
     }
 
     componentDidMount(){
-        ApiService.get('/seances/time?seanceDate=2018-03-15T16:30:00&filmId=a18e0cfe-3a2e-45d1-aec0-1415cfaf9b52', 
-        (filmsList)=>{  
-            this.setState({ filmsWithTimes : filmsList}, ()=> {console.log("Filmy z czasami"); console.log(this.state.filmsWithTimes[0].item2)}); 
+        ApiService.get('/seances/time?seanceDate=2018-06-4T16:30:00&filmId=a18e0cfe-3a2e-45d1-aec0-1415cfaf9b52', 
+        (filmsList)=>{  this.createFilmsComponentList(filmsList); });
+    }
+
+    createFilmsComponentList(filmsList){
+        this.setState({ filmsWithTimes : filmsList}, ()=> {console.log("Filmy z czasami"); }); 
             var filmy = [];
             var iterator = 0;
             filmsList.forEach(element => {               
                 ApiService.get("/films/".concat(element.item2), (film)=>{ filmy.push(<ListGroupItem key={iterator++}><SeanceInfo title={film.title} seanceId={element.item1} seanceHours={element.item3} url={film.url} /></ListGroupItem>)})
             });
             
-            this.setState({films : filmy}, ()=>{console.log('Filmy w state'); console.log(filmy); console.log(this.state.films); this.forceUpdate();});        
-        });
-
+            this.setState({films : filmy}, ()=>{console.log('Filmy w state'); console.log(filmy); console.log(this.state.films); this.forceUpdate();});    
     }
 
     render() {
-
         return( <div> 
                 {this.createTabs()}
                 <ListGroup>
@@ -48,19 +48,39 @@ export default class SeanceList extends React.Component {
          );
     }
 
+    handleSelect(eventKey) {
+        var d = new Date();
+        d.setDate(d.getUTCDate() + eventKey)
+        console.log(d);
+        console.log('/seances/time?seanceDate='+ d.toISOString()  + '&filmId=a18e0cfe-3a2e-45d1-aec0-1415cfaf9b52');
+        ApiService.get('/seances/time?seanceDate='+ d.toISOString()   + '&filmId=a18e0cfe-3a2e-45d1-aec0-1415cfaf9b52',
+        (filmsList)=>{console.log("Returned seances"); console.log(filmsList); 
+        
+        console.log('inside');
+        this.setState({ filmsWithTimes : filmsList}, ()=> {console.log("Filmy z czasami"); }); 
+        var filmy = [];
+        var iterator = 0;
+        filmsList.forEach(element => {               
+            ApiService.get("/films/".concat(element.item2), (film)=>{ filmy.push(<ListGroupItem key={iterator++}><SeanceInfo title={film.title} seanceId={element.item1} seanceHours={element.item3} url={film.url} /></ListGroupItem>)})
+        });
+        this.setState({films : []});
+        this.setState({films : filmy}, ()=>{console.log('Filmy w state'); console.log(filmy); console.log(this.state.films); this.forceUpdate();});   
+      });
+    }
+
     createTabs(){
         var d = new Date();
-
+        
         var tabsList = [];
-        tabsList.push(<Tab key={1} eventKey={1} title="Today"></Tab>);
-        tabsList.push(<Tab key={2} eventKey={2} title="Tomorrow"></Tab>);
+        tabsList.push(<Tab key={1} eventKey={0} title="Today"></Tab>);
+        tabsList.push(<Tab key={2} eventKey={1} title="Tomorrow"></Tab>);
 
         var it = 2
         for  (let i = 2; i < 6; i++) {
-            tabsList.push(<Tab key ={i+3} eventKey={it++} title={d.getDate()+i}></Tab>);
+            tabsList.push(<Tab key ={i+3} eventKey={it++} title={(d.getDate()+i)+"." +d.getMonth()}></Tab>);
         } 
 
-        return(<Tabs id={1} key={1}> {tabsList} </Tabs>)
+        return(<Tabs  onSelect={this.handleSelect} id={1} key={1}> {tabsList} </Tabs>)
     }
 }
 

@@ -1,4 +1,7 @@
-﻿using BlueCinema.Models;
+﻿using AutoMapper;
+using BlueCinema.Models;
+using BlueCinema.Models.Dto;
+using BlueCinema.Models.ViewModels;
 using BlueCinema.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,9 +12,12 @@ namespace BlueCinema.Controllers
     [Route("api/[controller]")]
     public class BookingsController : Controller
     {
-        public BookingsController(IBookingService bookingService)
-        {
+        private IMapper mapper; 
+
+        public BookingsController(IBookingService bookingService, IMapper mapper)
+        {            
             this.bookingService = bookingService;
+            this.mapper = mapper;
         }
 
         IBookingService bookingService;
@@ -25,16 +31,23 @@ namespace BlueCinema.Controllers
 
         // GET api/bookings/5
         [HttpGet("{id}")]
-        public Booking Get(Guid id)
+        public BookingDto Get(Guid id)
         {
-            return bookingService.GetById(id);
+            return this.mapper.Map<BookingDto>(bookingService.GetById(id));
+        }
+
+        // GET api/bookings/5
+        [HttpGet("user/{id}")]
+        public IList<BookingDto> GetByUserId(Guid id)
+        {
+            return this.mapper.Map<IList<BookingDto>>(bookingService.GetByUserId(id));
         }
 
         // POST api/bookings
         [HttpPost]
-        public void Post([FromBody]Guid seanceId, string places)
-        {
-            
+        public string Post([FromBody]BookingDto booking) 
+        {           
+           return  bookingService.AddBooking(this.mapper.Map<Booking>(booking));
         }
 
         // PUT api/bookings/5

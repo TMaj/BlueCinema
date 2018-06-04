@@ -2,7 +2,9 @@
 using BlueCinema.Exceptions;
 using BlueCinema.Helpers;
 using BlueCinema.Models;
+using BlueCinema.Models.Dto;
 using BlueCinema.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,26 +20,49 @@ namespace BlueCinema.Services
             this.context = context;
         }
 
+        public string AddBooking(Booking booking)
+        {
+            this.Add(booking);
+            return booking.Id.ToString().Substring(0, 8);
+        }
+
         public void Add(Booking booking)
         {
+            var seance = this.context.Seances.Include(s => s.Film)
+                                 .Include(s => s.Bookings)
+                                 .Include(s => s.Room)
+                                 .ToList().FirstOrDefault(s => s.Id.Equals(booking.Seance.Id));
+
+            booking.Seance = seance ?? throw new BookingException("Invalid seance id");
+
             ValidateBooking(booking);
 
+            booking.BookingTime = DateTime.Now;
+
             context.Bookings.Add(booking);
+            context.SaveChanges();
         }
 
         public IList<Booking> GetAll()
         {
-            return context.Bookings.ToList();
+            return context.Bookings
+                           .Include(b => b.Seance)
+                           .ToList();
         }
 
         public Booking GetById(Guid id)
         {
-            return context.Bookings.FirstOrDefault(b => b.Id == id);
-        }
+           return context.Bookings.FirstOrDefault(b => b.Id == id);
+        }       
 
         public void Remove(Guid id)
         {
+            if (context.Bookings.FirstOrDefault(b => b.Id == id) == null)
+            {
+                return;
+            }              
             context.Bookings.Remove(context.Bookings.FirstOrDefault(b => b.Id == id));
+            context.SaveChanges();
         }
 
         public void Update(Booking booking)
@@ -76,12 +101,17 @@ namespace BlueCinema.Services
                 return false;
             }
 
-            if (places.Any(p => seance.BookedPlaces.Contains(p)))
+            if (places.Any(p => ConversionHelper.ParseDelimitedStringsToInts(':', seance.Bookings.Select(b => b.Places).ToList()).Contains(p))) 
             {
                 return false;
             }
 
             return true;
+        }
+
+        public IList<Booking> GetByUserId(Guid id)
+        {
+           return GetAll().Where(b => b.UserId.Equals(id)).OrderByDescending(b=> b.BookingTime).ToList();
         }
     }
 }

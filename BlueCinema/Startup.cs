@@ -1,4 +1,5 @@
-﻿using BlueCinema.Data;
+﻿using AutoMapper;
+using BlueCinema.Data;
 using BlueCinema.Services;
 using BlueCinema.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -61,6 +62,8 @@ namespace BlueCinema
             });
 
             services.AddCors();
+
+            services.AddAutoMapper();
 
             services.AddTransient<IMessageService, FileMessageService>();
 

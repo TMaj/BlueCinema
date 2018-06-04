@@ -51,5 +51,12 @@ export default class ApiService{
         })
         .catch(error => {console.log(error.response);})
     }
+
+    static delete(url,onFinish){
+        this.apiInstance.delete(url)
+        .then(response => {            
+            onFinish(response.data);            
+        })
+    }
 }
 

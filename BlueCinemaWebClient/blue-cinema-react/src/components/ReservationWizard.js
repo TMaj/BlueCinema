@@ -1,5 +1,6 @@
 import React from 'react'
 import {Well,Tabs,Tab,Image,Button, ButtonGroup} from 'react-bootstrap'
+import {Grid, Cell } from 'react-md' 
 import Room from './Room'
 import Tickets from './Tickets'
 import PaymentForm from './PaymentForm'
@@ -21,7 +22,9 @@ export default class ReservationWizard extends React.Component{
           bookedPlaces: [],
           disabledPlaces: [],
           price: 0,
-          bookingFinished: false    
+          bookingFinished: false,
+          paymentFinished: false,
+          reservationCode: null    
         };
         console.log(`/seances/${this.state.seanceId}`);
         ApiService.get(`/seances/${this.state.seanceId}`,(seance)=>{this.setState({seanceTitle : seance.film.title, seanceUrl: seance.film.url, disabledPlaces: seance.bookedPlaces},
@@ -33,9 +36,9 @@ export default class ReservationWizard extends React.Component{
         this.setState({seanceTime:nextProps.seanceTime});       
       }
 
-      onBookFinish(){
-        ApiService.post('/bookings', { seanceId: this.state.seanceId, bought: false, bookedPlaces: this.state.bookedPlaces, userId: Auth.getUid(), email: Auth.getEmail() },
-            ()=>(this.setState({bookingFinished: true})));
+      onBookFinish(bought){
+        ApiService.post('/bookings', { seanceId: this.state.seanceId, bought: bought, bookedPlaces: this.state.bookedPlaces, userId: Auth.getUid(), email: Auth.getEmail() },
+            (response)=>{ this.setState({bookingFinished: true, paymentFinished: bought, reservationCode: response})});
       }
 
       onBooking(booked, id){
@@ -62,9 +65,14 @@ export default class ReservationWizard extends React.Component{
         if(this.state.bookingFinished)
         {
             return(
-            <Well> <div> <Image src="img/ok.png" width="100" height="100" /> <h2> <b> Booking Successfull </b> </h2> <br/>  </div>
-            <br/><br/><br/> <h3><b>{this.state.seanceTitle} </b> {this.props.seanceTime} </h3> <br/>
-            <h2>Price: {this.state.price} pln</h2>
+            <Well>
+                  <Grid>
+                  <Cell>  <Image src="img/ok.png" width="100" height="100" /> </Cell>
+                  <Cell>  <h2> <b> Booking Successful </b> </h2>  </Cell>
+                  </Grid>
+                  <br/> <b> Reservation code: </b> <h2> {this.state.reservationCode} </h2> 
+                  <br/> <h3><b>{this.state.seanceTitle} </b> {this.props.seanceTime} </h3> <br/>
+            <h2>Price: {this.state.price} pln </h2> <br/> <b> {this.state.paymentFinished? "Paid" : "To be paid at cashier"} </b>
             </Well>);
         }
         else
@@ -87,7 +95,7 @@ export default class ReservationWizard extends React.Component{
                 </Tab>
                 <Tab eventKey={5} title="Payment details" disabled>
                     <Image src={"/img/dotpay.png"} alt="242x200" /> 
-                    <PaymentForm />
+                    <PaymentForm onPurchase={this.onBookFinish.bind(this)} />
                 </Tab>
             </Tabs>
             <ButtonGroup>

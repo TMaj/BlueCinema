@@ -1,5 +1,7 @@
 ﻿using BlueCinema.Models;
+using BlueCinema.Models.Dto;
 using System;
+using System.Collections.Generic;
 
 namespace BlueCinema.Tests.CinemaDataBuilder
 {
@@ -35,5 +37,39 @@ namespace BlueCinema.Tests.CinemaDataBuilder
         {
             return this.booking;
         }
+    }    
+}
+
+public class BookingDtoBuilder
+{
+    private BookingDto bookingDto;
+
+    public BookingDtoBuilder(SeanceDto seanceDto)
+    {
+        this.bookingDto = new BookingDto();
+        this.bookingDto.SeanceId = seanceDto.Id;
+    }
+
+    public BookingDtoBuilder WithGuid(Guid id)
+    {
+        this.bookingDto.Id = id;
+        return this;
+    }
+
+    public BookingDtoBuilder WithBoughtBool(bool bought)
+    {
+        this.bookingDto.Bought = bought;
+        return this;
+    }
+
+    public BookingDtoBuilder WithPlaces(IList<int> bookedPlaces)
+    {
+        this.bookingDto.BookedPlaces = bookedPlaces;
+        return this;
+    }
+
+    public BookingDto Build()
+    {
+        return this.bookingDto;
     }
 }

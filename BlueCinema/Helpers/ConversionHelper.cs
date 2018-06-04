@@ -31,5 +31,24 @@ namespace BlueCinema.Helpers
             return _string.Split(delimiter).Select(x => Int32.Parse(x)).ToList();
         }
 
+        public static string ParseIntsToDelimitedString(char delimiter, IList<int> ints)
+        {
+            var _string = string.Empty;
+
+            if (ints.Count == 0 || ints == null)
+            {
+                return _string;
+            }
+
+            foreach (var integer in ints)
+            {
+                _string = _string + integer.ToString() + delimiter; 
+            }
+
+            _string = _string.NormalizeString(delimiter);
+
+            return _string;
+        }
+
     }
 }

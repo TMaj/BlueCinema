@@ -1,4 +1,5 @@
 ﻿using BlueCinema.Helpers;
+using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 
@@ -49,5 +50,26 @@ namespace BlueCinema.Tests.HelperTests
             }
         }
 
+        [Theory]
+        [ClassData(typeof(TestDataGenerator))]
+        public void Parsing_Ints_Array_Should_Return_Proper_String(IList<int> ints, string _string)
+        {
+            var returnedString = ConversionHelper.ParseIntsToDelimitedString(':', ints);
+
+            Assert.Equal(returnedString, _string);
+        }
+
+        public class TestDataGenerator : IEnumerable<object[]>
+        {
+            private readonly List<object[]> _data = new List<object[]>
+            {
+                new object[] { new List<int> { 1, 2, 3, 4, 5 } , "1:2:3:4:5"},
+                new object[] { new List<int> { 6, 7, 8, 9, 10 }, "6:7:8:9:10"}
+            };
+
+            public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
     }
 }

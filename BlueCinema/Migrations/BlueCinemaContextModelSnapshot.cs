@@ -24,11 +24,19 @@ namespace BlueCinema.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<DateTime>("BookingTime");
+
                     b.Property<bool>("Bought");
+
+                    b.Property<string>("Email");
 
                     b.Property<string>("Places");
 
                     b.Property<Guid?>("SeanceId");
+
+                    b.Property<Guid>("UserId");
+
+                    b.Property<string>("UserName");
 
                     b.HasKey("Id");
 

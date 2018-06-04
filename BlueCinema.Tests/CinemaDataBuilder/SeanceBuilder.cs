@@ -1,4 +1,5 @@
 ﻿using BlueCinema.Models;
+using BlueCinema.Models.Dto;
 using System;
 
 namespace BlueCinema.Tests.CinemaDataBuilder
@@ -52,6 +53,56 @@ namespace BlueCinema.Tests.CinemaDataBuilder
         {
             return this.seance;
         }
+    }
 
+    public class SeanceDtoBuilder
+    {
+        private SeanceDto seanceDto;
+
+        public SeanceDtoBuilder()
+        {
+            this.seanceDto = new SeanceDto();
+        }
+
+        public SeanceDtoBuilder WithGuid(Guid guid)
+        {
+            this.seanceDto.Id = guid;
+            return this;
+        }
+
+        public SeanceDtoBuilder WithTime(DateTime time)
+        {
+            this.seanceDto.Time = time.ToString();
+            return this;
+        }
+
+        public SeanceDtoBuilder WithRoom(Action<RoomDtoBuilder> roomBuilderAction)
+        {
+            var roomDtoBuilder = new RoomDtoBuilder();
+            roomBuilderAction(roomDtoBuilder);
+            this.seanceDto.Room = roomDtoBuilder.Build();
+            return this;
+        }
+
+        public SeanceDtoBuilder WithFilm(Action<FilmDtoBuilder> filmBuilderAction)
+        {
+            var filmDtoBuilder = new FilmDtoBuilder();
+            filmBuilderAction(filmDtoBuilder);
+            this.seanceDto.Film = filmDtoBuilder.Build();
+            return this;
+        }
+
+        public SeanceDtoBuilder WithBooking(Action<BookingDtoBuilder> bookingBuilderAction)
+        {
+            var bookingDtoBuilder = new BookingDtoBuilder(this.seanceDto);
+            bookingBuilderAction(bookingDtoBuilder);
+            this.seanceDto.Bookings.Add(bookingDtoBuilder.Build());
+            return this;
+        }
+
+        public SeanceDto Build()
+        {
+            return this.seanceDto;
+        }
     }
 }

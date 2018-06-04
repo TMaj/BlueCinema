@@ -1,6 +1,8 @@
 import React from 'react'
-import {TextField, Button, SVGIcon } from 'react-md'
+import {TextField, Button, SVGIcon,Grid, Cell } from 'react-md' 
 import {Panel, Modal, Label} from 'react-bootstrap'
+import {Link} from 'react-router-dom'
+
 import LoginModal from './LoginModal'
 import RegisterModal from './RegisterModal'
 import ApiService from '../services/ApiService'
@@ -82,10 +84,13 @@ export default class UserPanel extends React.Component{
       else{
         return( 
           <Panel >
-            <Panel.Body>                    
-               <h2> <Label bsStyle="primary">{this.state.userEmail}</Label> </h2>
-               <br/>
-               <Button flat primary swapTheming onClick={this.handleLogOut} >Log out</Button>
+            <Panel.Body>     
+
+               <Grid className="grid-example">
+                    <Cell><h2> <Label bsStyle="primary">{this.state.userEmail}</Label> </h2></Cell>
+                    <Cell><Link to={'/'}><Button flat primary swapTheming onClick={this.handleLogOut} >Log out</Button></Link></Cell>
+                    <Cell><Link to={'/myTickets'}><Button flat primary swapTheming>My tickets</Button></Link></Cell>                    
+                </Grid>     
             </Panel.Body>
           </Panel>
         );

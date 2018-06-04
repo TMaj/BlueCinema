@@ -1,4 +1,6 @@
-﻿using BlueCinema.Models;
+﻿using AutoMapper;
+using BlueCinema.Models;
+using BlueCinema.Models.Dto;
 using BlueCinema.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,29 +11,32 @@ namespace BlueCinema.Controllers
     [Route("api/[controller]")]
     public class SeancesController : Controller
     {
-        public SeancesController(ISeanceService seanceService)
+        private IMapper mapper;
+
+        public SeancesController(ISeanceService seanceService, IMapper mapper)
         {
             this.seanceService = seanceService;
+            this.mapper = mapper;
         }
 
         ISeanceService seanceService;
 
         // GET api/seances
         [HttpGet]
-        public IEnumerable<Seance> Get()
+        public IEnumerable<SeanceDto> Get()
         {
-            return seanceService.GetAll();
+            return mapper.Map<IList<SeanceDto>>(seanceService.GetAll());
         }
 
         // GET api/seances/5
         [HttpGet("{id}")]
-        public Seance Get(Guid id)
+        public SeanceDto Get(Guid id)
         {
-            return seanceService.GetById(id);
+            return this.mapper.Map<SeanceDto>(seanceService.GetById(id));
         }
 
         [HttpGet("time")]
-        public IList<(Guid filmUid, IList<DateTime> dates)> GetSeancesWithTimes([FromQuery(Name = "seanceDate")]DateTime seanceDate, [FromQuery(Name = "filmId")] Guid filmId)
+        public IList<(Guid seanceId, Guid filmUid, IList<DateTime> dates)> GetSeancesWithTimes([FromQuery(Name = "seanceDate")]DateTime seanceDate, [FromQuery(Name = "filmId")] Guid filmId)
         {
             return seanceService.GetSeancesWithTimes(seanceDate);
         }

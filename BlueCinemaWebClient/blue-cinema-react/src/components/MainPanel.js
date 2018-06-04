@@ -7,6 +7,7 @@ import FilmsList from './FilmsList';
 import UserPanel from './UserPanel';
 import Welcome from './Welcome';
 import Information from './Information';
+import MyTickets from './MyTickets';
 
 export default class MainPanel extends React.Component{
     render(){
@@ -19,6 +20,7 @@ export default class MainPanel extends React.Component{
                 <Route path='/seances' component={ SeanceList }/>
                 <Route path='/films' component={ FilmsList } />
                 <Route path='/information' component={ Information } />
+                <Route path='/myTickets' component={ MyTickets } />
                 </Switch>
 
                 {/* {this.props.body} */}
